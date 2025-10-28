@@ -2,61 +2,105 @@ Sistema de Reserva de Hotel
 
 Integrante: RM553282 Kaio Vinicius Meireles Alves
 
-Este projeto foi desenvolvido para a disciplina de Arquitetura Orientada a Serviço, com foco em boas práticas, arquitetura em camadas e APIs REST. É um sistema de reservas de hotel que permite cadastrar quartos, criar reservas, fazer check-in e check-out, cancelar reservas e validar regras de negócio importantes, como disponibilidade de quartos e datas corretas.
+Este projeto foi desenvolvido como parte do desafio da disciplina de Arquitetura Orientada a Serviço, com foco em boas práticas, arquitetura em 3 camadas e APIs REST. O objetivo era criar um sistema funcional de reservas de hotel, respeitando separação de responsabilidades, validação de regras de negócio e migração de banco de dados versionada.
 
-A ideia principal foi construir uma aplicação organizada, funcional e fácil de entender, mostrando separação de responsabilidades e tratamento consistente de erros.
+Descrição do Sistema
 
-Descrição do Projeto
+O sistema permite cadastrar quartos com número, tipo, capacidade, valor da diária e status. É possível criar reservas para esses quartos, realizar check-in, check-out e cancelamento de reservas. No check-out, o sistema calcula automaticamente o valor total da estadia.
 
-O sistema permite que o usuário cadastre quartos informando número, tipo, capacidade, valor da diária e status. Também é possível criar reservas associadas a um quarto, fazer check-in, check-out e cancelar reservas. Ao realizar o check-out, o sistema calcula automaticamente o valor total da estadia.
+As principais regras de negócio implementadas são:
 
-A aplicação foi desenvolvida em Java usando Spring Boot, banco H2 em memória e Flyway para gerenciar a criação e migração do banco de dados. A arquitetura segue o padrão MVC, separando claramente responsabilidades entre Controller, Service e Repository, além de ter tratamento global de exceções.
+Verificar se o quarto está disponível nas datas solicitadas.
 
-Estrutura do Projeto
+Garantir que datas de check-in e check-out estejam corretas.
 
-O projeto está organizado em três camadas principais:
+Atualizar o status das reservas de forma consistente (CREATED, CHECKED_IN, CHECKED_OUT, CANCELED).
 
-Controller: responsável por receber requisições HTTP e enviar respostas REST.
-Service: contém as regras de negócio, garantindo validações e lógica central do sistema.
-Repository: gerencia a persistência dos dados no banco.
+O sistema foi desenvolvido em Java com Spring Boot, utilizando MVC para organizar o código em Controller, Service e Repository, e Flyway para gerenciar a migração do banco H2 em memória.
 
-As entidades principais são Room e Reservation. O sistema valida a disponibilidade dos quartos e o estado das reservas antes de qualquer operação, garantindo que não haja conflitos.
+Arquitetura e Organização
+
+Controller: recebe as requisições HTTP e envia respostas REST.
+
+Service: contém as regras de negócio e validações, garantindo que apenas operações válidas sejam executadas.
+
+Repository: gerencia o acesso ao banco de dados, usando JPA.
+
+Model: representa as entidades do sistema (Room e Reservation).
+
+Exception: tratamento global de erros para respostas consistentes.
+
+Essa organização garante que o sistema seja fácil de manter e expandir, seguindo boas práticas de arquitetura.
 
 Banco de Dados
 
-O banco utilizado é o H2, em memória, o que facilita testes e execução local. A estrutura básica das tabelas é:
+O sistema usa H2 em memória para facilitar testes locais, com tabelas criadas automaticamente via Flyway.
 
-Room: id, número (único), tipo (STANDARD, DELUXE, SUITE), capacidade, valor da diária e status (ATIVO/INATIVO).
-Reservation: id, quarto associado, nome do hóspede, datas de check-in e check-out previstas, status (CREATED, CHECKED_IN, CHECKED_OUT, CANCELED) e valor total calculado no check-out.
+Tabela Room: id, número (único), tipo (STANDARD, DELUXE, SUITE), capacidade, valor da diária, status (ATIVO / INATIVO)
+Tabela Reservation: id, quarto associado, nome do hóspede, check-in, check-out, status (CREATED, CHECKED_IN, CHECKED_OUT, CANCELED), valor total
 
-As tabelas são criadas automaticamente com Flyway, permitindo que a aplicação seja iniciada sem necessidade de scripts manuais.
+O Flyway garante que o banco seja criado e versionado automaticamente, sem necessidade de scripts manuais.
+
+Funcionalidades Implementadas
+
+Cadastro e listagem de quartos.
+
+Criação de reservas com validação de disponibilidade.
+
+Check-in e check-out de reservas.
+
+Cancelamento de reservas.
+
+Cálculo automático do valor total no check-out.
+
+Tratamento global de erros com mensagens consistentes.
+
+Banco versionado com Flyway para facilitar manutenção e evolução.
 
 Endpoints da API
 
-Room
-POST /rooms: cadastra um novo quarto
-GET /rooms: lista todos os quartos
+Quarto
 
-Reservation
-POST /reservations: cria uma nova reserva
-POST /reservations/{id}/checkin: realiza check-in da reserva
-POST /reservations/{id}/checkout: realiza check-out e calcula o valor total
-POST /reservations/{id}/cancel: cancela a reserva
+POST /rooms – cadastrar novo quarto
 
-Todos os endpoints retornam mensagens claras em caso de erro, como tentativa de reservar um quarto já ocupado ou informar datas inválidas.
+GET /rooms – listar todos os quartos
+
+Reserva
+
+POST /reservations – criar reserva
+
+POST /reservations/{id}/checkin – check-in da reserva
+
+POST /reservations/{id}/checkout – check-out da reserva e cálculo do valor
+
+POST /reservations/{id}/cancel – cancelar reserva
+
+Todos os endpoints retornam respostas claras em caso de erro, como quando um quarto já está reservado nas datas solicitadas.
 
 Como Executar
 
-Para rodar o projeto, basta clonar o repositório e usar o Maven.
-No terminal, dentro da pasta do projeto, rode:
+Clonar o repositório:
+
+git clone <seu-repositório>
+cd hotel-reservation
+
+
+Rodar o projeto usando Maven:
 
 mvn clean install
 mvn spring-boot:run
 
 
-O H2 Console pode ser acessado em http://localhost:8080/h2-console
+Acessar o H2 Console (opcional) para ver o banco de dados:
+
+http://localhost:8080/h2-console
 JDBC URL: jdbc:h2:mem:hotel_db
 Username: sa
 Password: vazio
 
-Depois disso, você pode testar os endpoints usando Postman, Insomnia ou qualquer cliente HTTP.
+
+Testar os endpoints via Postman, Insomnia ou curl.
+
+Considerações Finais
+
+O projeto cumpre todos os requisitos do desafio, aplicando arquitetura em camadas, boas práticas REST, validação de regras de negócio, tratamento de erros e migração de banco versionada. É fácil de manter, expandir e serve como base sólida para evoluções futuras, como autenticação, integração com front-end ou notificações.
